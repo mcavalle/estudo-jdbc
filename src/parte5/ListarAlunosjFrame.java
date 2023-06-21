@@ -1,9 +1,12 @@
 package parte5;
 
 import java.awt.BorderLayout;
+import java.sql.SQLException;
+import java.util.List;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -14,15 +17,17 @@ public class ListarAlunosjFrame extends JDialog {
     private JScrollPane scrollPane;
     private DefaultTableModel tableModel;
     private JPanel panel;
-
-    public ListarAlunosjFrame(){
-        setTitle("Cadastrar Aluno");
+    private AlunoDAO alunoDAO;
+    
+    public ListarAlunosjFrame(AlunoDAO alunoDAO) {
+        this.alunoDAO = alunoDAO;
+        setTitle("Listar Alunos");
         setSize(600, 600);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setModal(true);
 
         tableModel = new DefaultTableModel(
-            new Object[]{"ID", "Nome", "Prontuario", "Email", "Ativo"},
+            new Object[] { "ID", "Nome", "Prontuario", "Email", "Ativo" },
             0
         );
 
@@ -31,24 +36,36 @@ public class ListarAlunosjFrame extends JDialog {
         scrollPane = new JScrollPane(table);
 
         panel = new JPanel(new BorderLayout());
-
-        panel.add(table);
-
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         loadData();
 
-        setVisible(true);
-        
-    }
-    
-    private void loadData(){
-        Object[] rowData1 = {1, "Maria", "SP0101", "maria@email.com", true};
-        Object[] rowData2 = {2, "Pedro", "SP0102", "pedro@email.com", false};
-        Object[] rowData3 = {3, "Joao", "SP0103", "joao@email.com", true};
+        getContentPane().add(panel);
 
-        tableModel.addRow(rowData1);
-        tableModel.addRow(rowData2);
-        tableModel.addRow(rowData3);
+        setVisible(true);
+    }
+
+    private void loadData() {
+        try {
+            List<Aluno> alunos = alunoDAO.findAll();
+
+            for (Aluno aluno : alunos) {
+                Object[] row = { 
+                    aluno.getId(), 
+                    aluno.getNome(), 
+                    aluno.getProntuario(), 
+                    aluno.getEmail(), 
+                    aluno.getAtivo()
+                };
+                tableModel.addRow(row);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(
+                ListarAlunosjFrame.this, 
+                "Erro ao acessar o banco de dados",
+                "Erro",
+                JOptionPane.ERROR_MESSAGE    
+            );
+        }
     }
 }

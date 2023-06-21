@@ -1,7 +1,6 @@
 package parte5;
 
 import java.awt.GridLayout;
-import java.awt.List;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
